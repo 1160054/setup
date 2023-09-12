@@ -1,5 +1,4 @@
-echo --------------------------------------------------------------------------------
-echo Clone the repository
+green Clone the repository
 cd $WORK_DIR
 repositories=(
   forx_web
@@ -12,7 +11,7 @@ repositories=(
   env
 )
 for repo in $repositories; do
-  echo "git clone git@github.com:moneyforward/${repo}.git"
+  blue "git clone git@github.com:moneyforward/${repo}.git"
   if [ ! -d $repo ]; then
     git clone git@github.com:moneyforward/${repo}.git
   fi
