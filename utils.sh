@@ -1,3 +1,6 @@
+export CURRENT=$(cd $(dirname $0);pwd)
+mkdir -p $WORK_DIR
+
 function add_zshrc() {
   grep $1 ~/.zshrc || echo $1 >> ~/.zshrc
   eval $1

@@ -1,3 +1,4 @@
+source $CURRENT/utils.sh
 green Clone the repository
 cd $WORK_DIR
 repositories=(

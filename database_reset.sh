@@ -1,3 +1,5 @@
+source utils.sh
+
 green source $WORK_DIR/env/.envrc
 source $WORK_DIR/env/.envrc
 green Drop the database

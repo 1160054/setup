@@ -32,5 +32,5 @@ green Set values in bundle config.
 cd $WORK_DIR
 bundle config --global build.mysql2 --with-opt-dir="$(brew --prefix openssl)"
 bundle config --global build.thin --with-cflags="-Wno-error=implicit-function-declaration"
-bundle config --global https://rubygems.pkg.github.com/moneyforward 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
+bundle config --global https://rubygems.pkg.github.com/moneyforward $BUNDLE_RUBYGEMS__PKG__GITHUB__COM
 bundle config --global BUNDLE_BUILD__MYSQL2 "--with-ldflags=-L/usr/local/opt/openssl@1.1/lib --with-cppflags=-I/usr/local/opt/openssl@1.1/include"

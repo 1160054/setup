@@ -1,4 +1,4 @@
-green --------------------------------------------------------------------------------
+source $CURRENT/utils.sh
 green Install homebrew
 if ! (brew -v); then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
