@@ -7,14 +7,25 @@
 # デフォルトの作業ディレクトリは $HOME/RubymineProjects になっています
 # export WORK_DIR=~/hoge で上書きできます
 #
-# 実行
+# 読み込み
 # zsh setup.sh
 #
+# 環境構築
+# reset_and_setup
+#
+# forx_web起動 (evoraも必要です)
+# local_forx_web
+#
+# forx_aweb起動
+# local_forx_aweb
+#
+# evora起動
+# local_evora
 
 [ -z "$WORK_DIR" ] && WORK_DIR=~/RubymineProjects
 mkdir -p $WORK_DIR
 
-function main() {
+function reset_and_setup() {
     brew_install
     rbenv_install
     git_clone
@@ -234,5 +245,3 @@ function local_evora() {
   green ./gradlew clean appRun --console=plain
   ./gradlew clean appRun --console=plain
 }
-
-main
