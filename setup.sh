@@ -1,36 +1,29 @@
 #!/bin/zsh -e
-# 使い方
+# Usage
 #
-# クラシックトークンを設定する
-# export BUNDLE_RUBYGEMS__PKG__GITHUB__COM=ghp_XXXX
+# echo "source `pwd`/setup.sh" >> ~/.zshrc
 #
-# デフォルトの作業ディレクトリは $HOME/RubymineProjects になっています
-# export WORK_DIR=~/hoge で上書きできます
+# reset
 #
-# 読み込み
-# zsh setup.sh
+# brew_install
+# rbenv_install
+# git_clone
+# database_reset
+# database_import
 #
-# 環境構築
-# reset_and_setup
-#
-# forx_web起動 (evoraも必要です)
 # local_forx_web
-#
-# forx_aweb起動
 # local_forx_aweb
-#
-# evora起動
 # local_evora
 
+# デフォルトの作業ディレクトリ
 [ -z "$WORK_DIR" ] && WORK_DIR=~/RubymineProjects
 mkdir -p $WORK_DIR
 
-function reset_and_setup() {
+function reset() {
     brew_install
     rbenv_install
     git_clone
     database_reset
-    rails_server
 }
 function brew_install(){
   green Install homebrew
@@ -81,6 +74,10 @@ function brew_install(){
   if ! (yarn -v | grep 1.22.19); then
     brew install yarn
     yarn policies set-version 1.22.19
+  fi
+  green Install gnu-getopt
+  if ! (getopt); then
+    brew install gnu-getopt
   fi
 }
 function rbenv_install() {
@@ -164,7 +161,7 @@ function database_reset() {
     mysql -uroot -e "DROP DATABASE IF EXISTS $db; CREATE DATABASE $db;"
   done
   green --------------------------------------------------------------------------------
-  cd $WORK_DIR/aggre-db-schema && green `basename $(pwd)`s
+  cd $WORK_DIR/aggre-db-schema && green `basename $(pwd)`
   gem install bundler --conservative && (bundle check || bundle install) && green OK
   ./aggre_asset.sh deploy --host localhost --apply
   ./aggre_common.sh deploy --host localhost --apply
@@ -204,13 +201,13 @@ function database_reset() {
   bin/rake db:structure:load RAILS_ENV=development
   green --------------------------------------------------------------------------------
   green Import aggre_common
-  mysql -uroot aggre_common < aggre_common.sql
-  mysql -uroot x_production -e "update for_x_applications set release_status = 'released' where app_type=100057" # PwCをリリース状態にしておく
+  mysql -uroot aggre_common < $WORK_DIR/setup/aggre_common.sql
+  mysql -uroot x_production -e "update for_x_applications set release_status = 'released' where app_type=10057"
+  green --------------------------------------------------------------------------------
+  mysqldump -uroot --all-databases > $WORK_DIR/all-databases.sql
 }
-function rails_server() {
-  add_zshrc "source $WORK_DIR/env/.envrc"
-  add_zshrc "export MF_DB_SOCKET=/tmp/mysql.sock"
-  local_forx_web
+function database_import() {
+   mysql -uroot < $WORK_DIR/all-databases.sql
 }
 function add_zshrc() {
   grep $1 ~/.zshrc || echo $1 >> ~/.zshrc
@@ -232,13 +229,13 @@ function local_forx_web() {
   cd $WORK_DIR/forx_web
   source $WORK_DIR/env/.envrc
   green bin/rails s -b lvh.me -p 4431
-  APP_TYPE=10001 bin/rails s -b lvh.me -p 4431
+  MF_DB_SOCKET=/tmp/mysql.sock APP_TYPE=10057 bin/rails s -b lvh.me -p 4431
 }
 function local_forx_aweb(){
   cd $WORK_DIR/forx_aweb
   source $WORK_DIR/env/.envrc
   green bundle exec rails s -b lvh.me -p 3443
-  bundle exec rails s -b lvh.me -p 3443
+  MF_DB_SOCKET=/tmp/mysql.sock bundle exec rails s -b lvh.me -p 3443
 }
 function local_evora() {
   cd $WORK_DIR/evora
