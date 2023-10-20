@@ -43,11 +43,18 @@ function brew_install(){
   if ! (git -v); then
     brew install git
   fi
-  green Install java
-  if ! (java -version); then
+  green Install java 8
+  if ! (ls /Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin/java); then
     brew install --cask adoptopenjdk8
   fi
-  add_zshrc 'export JAVA_HOME=`/usr/libexec/java_home -v 1.8`'
+  green Install java amazon-corretto-11
+  if ! (ls /Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/Contents/Home/bin/java); then
+    curl -L https://corretto.aws/downloads/latest/amazon-corretto-11-x64-macos-jdk.tar.gz -o amazon-corretto-11-jdk.tar.gz
+    tar -xzf amazon-corretto-11-jdk.tar.gz -C /Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk --strip-components=1
+    sudo mkdir -p /Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk/
+    sudo tar -xvf amazon-corretto-11-jdk.tar.gz -C /Library/Java/JavaVirtualMachines/amazon-corretto-11.jdk --strip-components=1
+    rm amazon-corretto-11-jdk.tar.gz
+  fi
   green Install mysql
   if ! (mysql --version | grep 5.7); then
     brew install mysql@5.7
@@ -130,6 +137,7 @@ function git_clone() {
     img_mf_schema
     log_schema
     env
+    camaro
   )
   for repo in $repositories; do
     blue "git clone git@github.com:moneyforward/${repo}.git"
@@ -240,5 +248,10 @@ function local_forx_aweb(){
 function local_evora() {
   cd $WORK_DIR/evora
   green ./gradlew clean appRun --console=plain
-  ./gradlew clean appRun --console=plain
+  JAVA_HOME=`/usr/libexec/java_home -v 1.8` ./gradlew clean appRun --console=plain
+}
+function local_camaro() {
+    cd $WORK_DIR/camaro
+    CAMARO_DB_HOST_PORT=3309 docker-compose up -d
+    CAMARO_DB_HOST_PORT=3309 JAVA_HOME=`/usr/libexec/java_home -v 11` ./gradlew clean bootRun
 }
