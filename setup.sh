@@ -3,7 +3,7 @@
 #
 # echo "source `pwd`/setup.sh" >> ~/.zshrc
 #
-# reset
+# reset_all
 #
 # brew_install
 # rbenv_install
@@ -14,6 +14,7 @@
 # local_forx_web
 # local_forx_aweb
 # local_evora
+# local_camaro
 
 # デフォルトの作業ディレクトリ
 [ -z "$WORK_DIR" ] && WORK_DIR=~/RubymineProjects
@@ -141,6 +142,7 @@ function git_clone() {
     log_schema
     env
     camaro
+    evora
   )
   for repo in $repositories; do
     blue "git clone git@github.com:moneyforward/${repo}.git"
