@@ -236,8 +236,9 @@ function green() {
 function local_forx_web() {
   cd $WORK_DIR/forx_web
   source $WORK_DIR/env/.envrc
-  green bin/rails s -b lvh.me -p 4431
-  MF_DB_SOCKET=/tmp/mysql.sock APP_TYPE=10057 bin/rails s -b lvh.me -p 4431
+  APP_TYPE=10001
+  green MF_DB_SOCKET=/tmp/mysql.sock APP_TYPE=$APP_TYPE bin/rails s -b lvh.me -p 4431
+  MF_DB_SOCKET=/tmp/mysql.sock APP_TYPE=$APP_TYPE bin/rails s -b lvh.me -p 4431
 }
 function local_forx_aweb(){
   cd $WORK_DIR/forx_aweb
