@@ -19,7 +19,7 @@
 [ -z "$WORK_DIR" ] && WORK_DIR=~/RubymineProjects
 mkdir -p $WORK_DIR
 
-function reset() {
+function reset_all() {
     brew_install
     rbenv_install
     git_clone
@@ -91,6 +91,9 @@ function rbenv_install() {
   green Install libffi # rubyのインストールに必要
   if ! (brew list | grep libffi); then
     brew install libffi
+  fi
+  if ! (brew list | grep zlib); then
+    brew install zlib # rubyのインストールに必要
   fi
   add_zshrc 'export PKG_CONFIG_PATH="/opt/homebrew/opt/libffi/lib/pkgconfig"'
   add_zshrc 'export LDFLAGS="-L/opt/homebrew/opt/zlib/lib"'
@@ -168,6 +171,7 @@ function database_reset() {
     blue "DROP DATABASE IF EXISTS $db; CREATE DATABASE $db;"
     mysql -uroot -e "DROP DATABASE IF EXISTS $db; CREATE DATABASE $db;"
   done
+  source $WORK_DIR/env/.envrc
   green --------------------------------------------------------------------------------
   cd $WORK_DIR/aggre-db-schema && green `basename $(pwd)`
   gem install bundler --conservative && (bundle check || bundle install) && green OK
