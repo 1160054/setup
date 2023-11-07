@@ -1,7 +1,7 @@
 export PROMPT="%~ > "
 export EDITOR=emacs
 export APP="/Users/onodera.yudai.c0704/RubymineProjects/forx_web"
-export BUNDLE_RUBYGEMS__PKG__GITHUB__COM=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
+export BUNDLE_RUBYGEMS__PKG__GITHUB__COM=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
 export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
 export NVM_DIR="$HOME/.nvm"
 export PKG_CONFIG_PATH="/opt/homebrew/opt/libffi/lib/pkgconfig"
@@ -11,23 +11,36 @@ export APP_TYPE=10001
 export MF_DB_SOCKET=/tmp/mysql.sock
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY="YES"
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+export HERMES_HOST_URL=http://localhost:8083
+export PATH="$GOROOT/bin:$PATH"
+export PATH="$PATH:$GOPATH/bin"
 
 alias z='source ~/.zshrc; source ~/.zprofile'
-alias a="clear; cd $APP; git log --oneline -n 5; git status; git branch"
+alias a="clear; cd $APP; git log --oneline -n 5; git status; git branch; ignore"
 alias s="grep -r --color --binary-files=without-match --exclude={'*.min.js','*jquery*'} --exclude-dir={log,.git,tmp,node_modules,public,.yarn,mfx_api_docs} $1"
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(rbenv init - zsh)"
+eval "$(goenv init -)"
+
 source ~/RubymineProjects/setup/setup.sh
 source ~/RubymineProjects/env/.envrc
+source ~/RubymineProjects/hermes/.envrc
 [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
 [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
 
-function stg-tail-1() {
+function stg1(){
+  ssh money-book@stg1-jenkins01.ebisubook.com -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa -tt "ssh stg1-forxapp11in"
+}
+function stg2(){
+  ssh money-book@stg1-jenkins01.ebisubook.com -oHostKeyAlgorithms=+ssh-rsa -oPubkeyAcceptedAlgorithms=+ssh-rsa -tt "ssh stg1-forxapp12in"
+}
+
+function stg1-tail() {
     ssh -tt stg ssh -tt stg1-forxapp11in tail -F /mbook/log/rails/forx_web.log
 }
 
-function stg-tail-2() {
+function stg2-tail() {
     ssh -tt stg ssh -tt stg1-forxapp12in tail -F /mbook/log/rails/forx_web.log
 }
 
@@ -128,4 +141,37 @@ function web-tail (){
 
 function aweb-tail(){
      ssh aweb "tail -f /mbook/log/**/*.log"
+}
+
+function idev-tags() {
+  for NAME in forx-web forx-aweb mfx-pfm-api acty camaro mfx-push
+  do
+    newTag=`aws ecr describe-images --profile idev --repository-name ${NAME} --query "imageDetails[?(contains(to_string(imageTags), 'release-') || contains(to_string(imageTags), 'master-'))][imagePushedAt, imageTags[0]]" --output text | sort -r | awk '{print $2}' | head -n 1`
+    echo "- name: 361775621992.dkr.ecr.ap-northeast-1.amazonaws.com/$NAME"
+    echo "  newName: 361775621992.dkr.ecr.ap-northeast-1.amazonaws.com/${NAME}"
+    echo "  newTag: ${newTag}"
+  done
+}
+
+function ignore-list() {
+  echo services/camaro/base/kustomization.yaml config/environments/development.rb yarn.lock package.json before after
+}
+
+function ignore() {
+  for FILE in `ignore-list`
+  do
+    if [ -f $FILE ]; then
+      git update-index --skip-worktree $FILE
+    fi
+  done
+  git ls-files -v | grep -v H
+}
+function unignore() {
+  for FILE in `ignore-list`
+  do
+    if [ -f $FILE ]; then
+      git update-index --no-skip-worktree $FILE
+    fi
+  done
+  git ls-files -v | grep -v H
 }

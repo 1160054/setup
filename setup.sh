@@ -262,3 +262,7 @@ function local_camaro() {
     CAMARO_DB_HOST_PORT=3309 docker-compose up -d
     CAMARO_DB_HOST_PORT=3309 JAVA_HOME=`/usr/libexec/java_home -v 11` ./gradlew clean bootRun
 }
+function local_hermes() {
+  cd $WORK_DIR/hermes
+  make docker/run-local
+}
